@@ -22,7 +22,7 @@ export interface FilterJson {
 /**
  * The allowed aggregation function names.
  */
-export type AggregationType = "Count" | "Sum" | "Avg" | "Min" | "Max" | "CountDistinct";
+export type AggregationType = "Count" | "Sum" | "Avg" | "Min" | "Max" | "CountDistinct" | "Concat";
 
 /**
  * Describes an aggregated values. It is always taken from one column, with

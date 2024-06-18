@@ -400,6 +400,44 @@ namespace FlowerBI.Engine.Tests
 
             filterParams.Names.Should().HaveCount(0);
         }
+        
+        [Fact]
+         public void SingleAggregationConcat()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Category.CategoryName",
+                        Function = AggregationType.Concat
+                    }
+                },
+                Skip = 5,
+                Take = 10,
+                AllowDuplicates = false,
+                OrderBy = new List<OrderingJson> { new OrderingJson { Column = "Vendor.VendorName" } }
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"
+                select |tbl00|!|VendorName| Select0, STRING_AGG(|tbl01|!|CategoryName|, ',') Value0 
+                from |Testing|!|Supplier| tbl00 
+                join |Testing|!|Invoice| tbl02 
+                    on |tbl02|!|VendorId| = |tbl00|!|Id| 
+                join |Testing|!|InvoiceCategory| tbl03 
+                    on |tbl03|!|InvoiceId| = |tbl02|!|Id| 
+                join |Testing|!|Category| tbl01 
+                    on |tbl01|!|Id| = |tbl03|!|CategoryId| 
+                group by |tbl00|!|VendorName| 
+                order by |tbl00|!|VendorName| asc 
+                skip:5 take:10
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
 
         [Fact]
         public void SingleAggregationFullJoin()

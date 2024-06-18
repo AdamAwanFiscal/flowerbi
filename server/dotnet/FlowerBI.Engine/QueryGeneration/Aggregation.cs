@@ -14,6 +14,8 @@ namespace FlowerBI
         Min,
         Max,
         CountDistinct,
+
+        Concat,
     };
 
     public class Aggregation
@@ -82,6 +84,12 @@ where
 
         private static string FormatAggFunction(AggregationType func, string expr)
         {
+
+            if (func == AggregationType.Concat)
+            {
+                return $"STRING_AGG({expr}, ',')";
+            }
+
             var funcStr = func == AggregationType.CountDistinct ? "count" : func.ToString();
             var exprStr = func == AggregationType.CountDistinct ? $"distinct {expr}" : expr;
             return $"{funcStr}({exprStr})";
